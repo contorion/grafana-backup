@@ -19,6 +19,7 @@
 package main
 
 import (
+  "context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -82,6 +83,7 @@ func restoreDashboards(cmd *command) {
 		//board       sdk.Board
 	)
 
+  ctx := context.Background()
 	for _, filename := range cmd.filenames {
 		if strings.HasSuffix(filename, "db.json") {
 			if rawBoard, err = ioutil.ReadFile(filename); err != nil {
@@ -91,7 +93,7 @@ func restoreDashboards(cmd *command) {
 
 			// TODO add db match filters
 
-			if err = cmd.grafana.SetRawDashboard(rawBoard); err != nil {
+			if _, err = cmd.grafana.SetRawDashboard(ctx,rawBoard); err != nil {
 				fmt.Fprintf(os.Stderr, "error on importing dashboard from %s", filename)
 				continue
 			}
@@ -119,6 +121,7 @@ func restoreDatasources(cmd *command) {
 		err            error
 	)
 
+  ctx := context.Background()
 	for _, filename := range cmd.filenames {
 		pattern, _ := regexp.Compile(".*.ds.([0-9]+).json")
 
@@ -142,7 +145,7 @@ func restoreDatasources(cmd *command) {
 			}
 
 			// TODO: Check to see if the datasource already exists and use the correct method or throw an error on update unless --force is specified.
-			resp, err = cmd.grafana.CreateDatasource(plain)
+			resp, err = cmd.grafana.CreateDatasource(ctx,plain)
 			//resp, err = cmd.grafana.UpdateDatasource(plain)
 
 			if err != nil {

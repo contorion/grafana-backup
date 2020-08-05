@@ -19,6 +19,7 @@
 package main
 
 import (
+  "context"
 	"fmt"
 	"os"
 
@@ -45,7 +46,8 @@ func listDashboards(cmd *command) {
 		foundBoards []sdk.FoundBoard
 		err         error
 	)
-	if foundBoards, err = cmd.grafana.SearchDashboards(cmd.boardTitle, cmd.starred, cmd.tags...); err != nil {
+  ctx := context.Background()
+	if foundBoards, err = cmd.grafana.SearchDashboards(ctx,cmd.boardTitle, cmd.starred, cmd.tags...); err != nil {
 		fmt.Fprintf(os.Stderr, fmt.Sprintf("%s\n", err))
 		return
 	}
@@ -71,7 +73,8 @@ func listDatasources(cmd *command) {
 		datasources []sdk.Datasource
 		err         error
 	)
-	if datasources, err = cmd.grafana.GetAllDatasources(); err != nil {
+  ctx := context.Background()
+	if datasources, err = cmd.grafana.GetAllDatasources(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, fmt.Sprintf("%s\n", err))
 		return
 	}
@@ -93,7 +96,8 @@ func listUsers(cmd *command) {
 		allUsers []sdk.User
 		err      error
 	)
-	if allUsers, err = cmd.grafana.GetAllUsers(); err != nil {
+  ctx := context.Background()
+	if allUsers, err = cmd.grafana.GetAllUsers(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, fmt.Sprintf("%s\n", err))
 		return
 	}

@@ -19,6 +19,7 @@
 package main
 
 import (
+  "context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -59,7 +60,8 @@ func backupDashboards(cmd *command) {
 		datasources = make(map[string]bool)
 		err         error
 	)
-	if boardLinks, err = cmd.grafana.SearchDashboards(cmd.boardTitle, cmd.starred, cmd.tags...); err != nil {
+  ctx := context.Background()
+	if boardLinks, err = cmd.grafana.SearchDashboards(ctx, cmd.boardTitle, cmd.starred, cmd.tags...); err != nil {
 		fmt.Fprintf(os.Stderr, fmt.Sprintf("%s\n", err))
 		os.Exit(1)
 	}
@@ -75,7 +77,7 @@ func backupDashboards(cmd *command) {
 		case <-cancel:
 			exitBySignal()
 		default:
-			if rawBoard, meta, err = cmd.grafana.GetRawDashboard(link.URI); err != nil {
+			if rawBoard, meta, err = cmd.grafana.GetRawDashboardBySlug(ctx,link.URI); err != nil {
 				fmt.Fprintf(os.Stderr, fmt.Sprintf("%s for %s\n", err, link.URI))
 				continue
 			}
@@ -107,7 +109,8 @@ func backupUsers(cmd *command) {
 		rawUser  []byte
 		err      error
 	)
-	if allUsers, err = cmd.grafana.GetAllUsers(); err != nil {
+  ctx := context.Background()
+	if allUsers, err = cmd.grafana.GetAllUsers(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, fmt.Sprintf("%s\n", err))
 		return
 	}
@@ -139,7 +142,8 @@ func backupDatasources(cmd *command, datasources map[string]bool) {
 		err            error
 	)
 
-	if allDatasources, err = cmd.grafana.GetAllDatasources(); err != nil {
+  ctx := context.Background()
+	if allDatasources, err = cmd.grafana.GetAllDatasources(ctx); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 		return
 	}
